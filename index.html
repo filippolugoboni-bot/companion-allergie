@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Companion Allergie — Padova</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --ink:#122019; --sub:#64726B; --teal:#0B6E68; --line:#D5DEDA; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Inter',system-ui,sans-serif; background:linear-gradient(180deg,#F3F6F5 0%,#E7ECEA 100%); background-attachment:fixed; color:var(--ink); padding:20px 0; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:460px; margin:0 auto; padding:0 16px; }
+  .display { font-family:'Bricolage Grotesque',system-ui,sans-serif; letter-spacing:-.02em; }
+  .num { font-variant-numeric:tabular-nums; }
+  .row { display:flex; align-items:center; }
+  .between { justify-content:space-between; }
+  .card { background:#fff; border-radius:20px; box-shadow:0 1px 2px rgba(0,0,0,.06); transition:box-shadow .28s ease, transform .28s ease; }
+  @media (hover:hover) and (min-width:820px) { .card:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(16,40,32,.10); } }
+  .chip { transition:transform .15s, background .2s, border-color .2s, color .2s; cursor:pointer; }
+  .chip:active { transform:scale(.96); }
+  .hero { transition:background .6s ease; }
+  circle.node { transition:r .3s, fill .3s; }
+  .hit { cursor:pointer; }
+  .sec-title { display:flex; align-items:center; gap:7px; }
+  .sec-title .t { font-weight:700; font-size:15px; }
+  .toggle-box { width:100%; display:flex; align-items:center; justify-content:space-between; background:#fff; border:none; border-radius:16px; padding:15px 16px; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .toggle-box .chev { transition:transform .25s ease; }
+  .toggle-box.open .chev { transform:rotate(180deg); }
+  .ticker { overflow:hidden; border-radius:14px; }
+  .ticker-track { display:flex; transition:transform .55s ease; }
+  .ticker-slide { flex:0 0 100%; min-width:0; }
+  .desktop-only { display:none; }
+  .reveal { opacity:0; transform:translateY(18px); transition:opacity .6s cubic-bezier(.22,.61,.36,1), transform .6s cubic-bezier(.22,.61,.36,1); }
+  .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) { .chip,.hero,circle.node,.ticker-track,.reveal,.toggle-box .chev,#dq-track { transition:none !important; } .reveal { opacity:1 !important; transform:none !important; } }
+  @media (min-width:820px) {
+    .wrap { max-width:940px; }
+    #cols { display:flex; gap:22px; align-items:flex-start; }
+    #col-a { flex:1.05 1 0; min-width:0; }
+    #col-b { flex:0.95 1 0; min-width:0; }
+    #col-b > *:first-child { margin-top:0; }
+    .desktop-only { display:block; }
+  }
+  #toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%,20px); opacity:0; z-index:150; display:flex; align-items:center; gap:12px; background:#fff; border-radius:16px; padding:14px 18px; box-shadow:0 12px 32px rgba(16,40,32,.20); max-width:340px; width:calc(100% - 32px); pointer-events:none; transition:opacity .35s ease, transform .4s cubic-bezier(.22,.61,.36,1); }
+  #toast.show { opacity:1; transform:translate(-50%,0); }
+  #toast .tk-check { width:34px; height:34px; border-radius:999px; background:#1FA971; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  #toast.show .tk-check { animation:tkpop .45s ease; }
+  #toast .tk-t { font-family:'Bricolage Grotesque',system-ui,sans-serif; font-weight:700; font-size:14px; color:#122019; }
+  #toast .tk-s { font-size:12.5px; color:#64726B; margin-top:2px; line-height:1.3; }
+  @keyframes tkpop { 0%{transform:scale(.5)} 60%{transform:scale(1.12)} 100%{transform:scale(1)} }
+  @media (prefers-reduced-motion: reduce) { #toast { transition:opacity .2s; } #toast.show .tk-check { animation:none; } }
+  button { font-family:inherit; }
+  #gate { position:fixed; inset:0; background:linear-gradient(135deg,#0B6E68,#0E7C52); display:flex; align-items:center; justify-content:center; padding:24px; z-index:100; }
+  #gate .box { background:#fff; border-radius:20px; padding:24px; max-width:340px; width:100%; box-shadow:0 12px 40px rgba(0,0,0,.25); }
+  #gate input { width:100%; padding:12px 14px; border:1.5px solid #D5DEDA; border-radius:12px; font-size:15px; font-family:inherit; margin-top:14px; outline:none; }
+  #gate input:focus { border-color:#0B6E68; }
+  #gate .enter { width:100%; margin-top:12px; padding:12px; border:none; border-radius:12px; background:#0B6E68; color:#fff; font-size:15px; font-weight:600; cursor:pointer; }
+  #gate .err { color:#D63E3A; font-size:12px; margin-top:8px; min-height:14px; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="box">
+    <div class="display" style="font-weight:700;font-size:18px;color:#122019;">Companion Allergie</div>
+    <div style="font-size:13px;color:#64726B;margin-top:4px;">Inserisci la password per continuare.</div>
+    <input id="pw" type="password" placeholder="Password" autocomplete="off" />
+    <button class="enter" onclick="unlockGate()">Entra</button>
+    <div class="err" id="pw-err"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="row between" style="margin-bottom:14px;">
+    <div class="row" style="gap:8px;">
+      <span id="i-pin"></span>
+      <div>
+        <div class="display" style="font-weight:700;font-size:16px;">Padova</div>
+        <div style="font-size:12px;color:var(--sub);">Sabato 12 giugno</div>
+      </div>
+    </div>
+    <div class="row" style="gap:6px;background:#fff;border-radius:999px;padding:6px 12px;box-shadow:0 1px 2px rgba(0,0,0,.06);">
+      <span id="i-flame"></span>
+      <span class="num" id="streak" style="font-weight:600;font-size:14px;">6</span>
+      <span style="font-size:12px;color:var(--sub);">giorni</span>
+    </div>
+  </div>
+
+  <!-- Diario (casella in alto, calendario del mese) -->
+  <div style="margin-bottom:16px;">
+    <button id="diary-toggle" class="toggle-box" onclick="toggleDiary()">
+      <span class="row" style="gap:8px;"><span id="i-cal"></span><span class="display" style="font-weight:700;font-size:15px;">Diario allergie</span></span>
+      <span class="chev" id="i-chev2"></span>
+    </button>
+    <div id="diary-body" style="display:none;margin-top:10px;"></div>
+  </div>
+
+  <div id="cols">
+    <div id="col-a">
+      <div class="hero" id="hero" style="border-radius:24px;padding:24px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.12);"></div>
+      <div id="allergies" style="margin-top:18px;"></div>
+
+      <div style="margin-top:22px;">
+        <div class="sec-title"><span id="i-info"></span><span class="t display">Consigli per oggi</span></div>
+        <div class="ticker" id="ticker" style="margin-top:10px;"><div class="ticker-track" id="ticker-track"></div></div>
+        <div style="font-size:11px;color:#94A39C;margin-top:8px;padding-left:2px;">Suggerimenti generali, non indicazioni terapeutiche.</div>
+      </div>
+
+      <div style="margin-top:22px;">
+        <div class="sec-title"><span id="i-clock2"></span><span class="t display">Andamento della giornata</span></div>
+        <div class="card" style="margin-top:10px;padding:14px;"><div id="hourly"></div></div>
+      </div>
+
+      <div id="checkin" style="margin-top:22px;background:#122019;border-radius:20px;padding:18px;color:#fff;"></div>
+    </div>
+
+    <div id="col-b">
+      <div class="desktop-only">
+        <div class="sec-title"><span id="i-flower2"></span><span class="t display">Dettaglio per allergene</span></div>
+        <div class="card" style="margin-top:10px;padding:16px;"><div id="breakdown"></div></div>
+      </div>
+      <div class="desktop-only" style="margin-top:18px;">
+        <div class="sec-title"><span id="i-wind2"></span><span class="t display">Qualità dell'aria</span></div>
+        <div class="card" style="margin-top:10px;padding:16px;"><div id="airdetail"></div></div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <div class="sec-title"><span id="i-sun"></span><span class="t display">Prossimi giorni</span></div>
+        <div id="forecast" class="row" style="gap:8px;margin-top:10px;"></div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <button id="map-toggle" class="toggle-box" onclick="toggleMap()">
+          <span class="row" style="gap:8px;"><span id="i-map"></span><span class="display" style="font-weight:700;font-size:15px;">Mappa della zona</span></span>
+          <span class="chev" id="i-chev"></span>
+        </button>
+        <div id="map-body" style="display:none;margin-top:10px;">
+          <div class="row" style="justify-content:flex-end;margin-bottom:8px;">
+            <div class="row" style="background:#fff;border-radius:999px;padding:3px;gap:2px;">
+              <button id="tab-pollen" class="layer-btn"></button>
+              <button id="tab-air" class="layer-btn"></button>
+            </div>
+          </div>
+          <div class="card" style="padding:14px;">
+            <div id="map"></div>
+            <div class="row" style="justify-content:center;gap:14px;margin-top:6px;">
+              <span class="lg" data-c="#1FA971">Basso</span>
+              <span class="lg" data-c="#D9A317">Medio</span>
+              <span class="lg" data-c="#E0742F">Alto</span>
+              <span class="lg" data-c="#D63E3A">Molto alto</span>
+            </div>
+            <div id="air-note"></div>
+            <div id="city-detail"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:12px;"></div>
+</div>
+
+<script>
+/* ====== Password della pagina — cambia QUI il valore tra virgolette ====== */
+const SITE_PASSWORD = "tesifilippo";
+/* ======================================================================== */
+function showApp(){ document.getElementById("gate").style.display="none"; document.querySelector(".wrap").style.visibility="visible"; }
+let unlocked=false;
+function unlockGate(){
+  const v=document.getElementById("pw").value;
+  if(v===SITE_PASSWORD){ try{ localStorage.setItem("ca_pw_ok","1"); }catch(e){} unlocked=true; showApp(); initReveal(); }
+  else { document.getElementById("pw-err").textContent="Password errata."; }
+}
+(function(){
+  let ok=false; try{ ok=localStorage.getItem("ca_pw_ok")==="1"; }catch(e){}
+  unlocked=ok;
+  if(ok){ showApp(); }
+  else {
+    document.querySelector(".wrap").style.visibility="hidden";
+    const i=document.getElementById("pw");
+    if(i){ i.addEventListener("keydown", e=>{ if(e.key==="Enter") unlockGate(); }); i.focus(); }
+  }
+})();
+
+/* ---------- Dati mock ---------- */
+const ALLERGENS = [
+  { id:"graminacee", label:"Graminacee", level:4 },
+  { id:"parietaria", label:"Parietaria", level:5 },
+  { id:"betulla",    label:"Betulla",    level:3 },
+  { id:"ambrosia",   label:"Ambrosia",   level:2 },
+  { id:"cipresso",   label:"Cipresso",   level:2 },
+  { id:"olivo",      label:"Olivo",      level:1 },
+  { id:"acari",      label:"Acari",      level:3 },
+  { id:"alternaria", label:"Alternaria", level:2 },
+];
+const AIR = { aqi:76, category:"Moderata", pm25:23, o3:88 };
+const ZONES = [
+  { name:"Padova",      x:48, y:54, pollen:5, air:4 },
+  { name:"Mestre",      x:66, y:48, pollen:4, air:4 },
+  { name:"Venezia",     x:78, y:56, pollen:3, air:3 },
+  { name:"Treviso",     x:68, y:30, pollen:3, air:3 },
+  { name:"Vicenza",     x:26, y:40, pollen:4, air:3 },
+  { name:"Abano Terme", x:40, y:70, pollen:5, air:3 },
+  { name:"Este",        x:30, y:78, pollen:4, air:2 },
+  { name:"Rovigo",      x:46, y:86, pollen:4, air:4 },
+];
+const FORECAST = [
+  { day:"Oggi", icon:"sun",  base:0  },
+  { day:"Dom",  icon:"sun",  base:82 },
+  { day:"Lun",  icon:"cloud",base:64 },
+  { day:"Mar",  icon:"rain", base:31 },
+  { day:"Mer",  icon:"cloud",base:58 },
+];
+const POLLEN_HOUR   = [12,10,10,10,12,18,25,45,70,85,80,65,50,40,35,35,40,50,62,58,45,30,20,14];
+const POLLUTION_HOUR= [24,22,20,20,22,24,28,30,38,45,52,60,68,75,82,84,80,72,62,52,44,36,30,26];
+
+/* ---------- Icone ---------- */
+const ICON = {
+  pin:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  flame:'<svg width="16" height="16" viewBox="0 0 24 24" fill="#E0742F" stroke="#E0742F" stroke-width="1.5"><path d="M12 2c1 4 4 5 4 9a4 4 0 0 1-8 0c0-1 .5-2 1-3-2 1-3 3-3 5a6 6 0 0 0 12 0c0-5-4-7-6-11Z"/></svg>',
+  flower:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 9V5m0 14v-4m3-3h4M5 12h4m1.5-4.5L8 5m8 0-2.5 2.5m0 9L16 19m-8 0 2.5-2.5"/></svg>',
+  wind:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h12a3 3 0 1 0-3-3M3 16h16a3 3 0 1 1-3 3"/></svg>',
+  map:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+  sun:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4 12H2m20 0h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>',
+  info:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4m0-4h.01"/></svg>',
+  check:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  home:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 21v-7h6v7"/></svg>',
+  glasses:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="15" r="3"/><circle cx="18" cy="15" r="3"/><path d="M9 15a3 3 0 0 1 6 0M2 12l3-6m17 6-3-6"/></svg>',
+  drop:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 6 9a6 6 0 1 0 12 0Z"/></svg>',
+  clock:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  mask:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c4-1.2 12-1.2 16 0 .6 1 1 2.6 1 4s-.4 3-1 4c-4 1.2-12 1.2-16 0-.6-1-1-2.6-1-4s.4-3 1-4Z"/><path d="M2 11h2M20 11h2M8 11h8M8 14h8"/></svg>',
+  shirt:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 5 6 3 9l3 2v9h12v-9l3-2-2-3-4-3a3 3 0 0 1-6 0Z"/></svg>',
+  bed:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v12M3 13h18v6M21 13a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4"/><circle cx="7" cy="11" r="1"/></svg>',
+  ac:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19"/></svg>',
+  vacuum:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h6M6 21v-6a5 5 0 0 1 5-5h2a4 4 0 0 0 4-4V3"/><circle cx="18" cy="18" r="3"/></svg>',
+  cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  cloud:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9FB8AC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a4 4 0 0 0 0-8 6 6 0 0 0-11.7 1.5A3.5 3.5 0 0 0 6 18Z"/></svg>',
+  rain:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9FB8AC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 15a4 4 0 0 0 0-8 6 6 0 0 0-11.7 1.5A3.5 3.5 0 0 0 6 15"/><path d="M8 18v2m4-2v3m4-3v2"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B6E68" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  refresh:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>',
+};
+const PILL_MINI='<svg width="11" height="7" viewBox="0 0 28 16"><rect x="1.2" y="1.2" width="25.6" height="13.6" rx="6.8" fill="#0B6E68"/><line x1="14" y1="3" x2="14" y2="13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';
+const BADGE='<span style="display:inline-flex;width:16px;height:16px;border-radius:999px;background:#fff;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.22);">'+PILL_MINI+'</span>';
+function sunIcon(){ return ICON.sun.replace('#0B6E68','#9FB8AC'); }
+function moodColor(v){ return {bene:"#1FA971",cosi:"#D9A317",male:"#D63E3A"}[v] || "#9FB8AC"; }
+
+/* ---------- Date locali (no shift di fuso) ---------- */
+function fmt(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function dayKey(off){ const d=new Date(); d.setDate(d.getDate()+off); return fmt(d); }
+const TODAY = fmt(new Date());
+
+/* ---------- Memoria ---------- */
+function loadState(){ try { const r=localStorage.getItem('ca_state'); return r?JSON.parse(r):{}; } catch(e){ return {}; } }
+function saveState(){ try { localStorage.setItem('ca_state', JSON.stringify({ selected:[...selected], streak, checkInDate })); } catch(e){} }
+function loadLog(){ try { return JSON.parse(localStorage.getItem('ca_log')||'{}'); } catch(e){ return {}; } }
+function saveLog(){ try { localStorage.setItem('ca_log', JSON.stringify(diary)); } catch(e){} }
+
+const S = loadState();
+let selected = new Set(Array.isArray(S.selected) ? S.selected : ["graminacee","parietaria"]);
+let streak = typeof S.streak==="number" ? S.streak : 6;
+let checkInDate = S.checkInDate || null;
+let layer = "pollen";
+let selectedCity = "Padova";
+let mapOpen = false;
+let diaryOpen = false;
+let prevIndex = 0;
+let pending = { mood:null, discomfort:null, anti:null };
+let dqStep = 0;
+
+let diary = loadLog();
+if(Object.keys(diary).length===0){
+  diary[dayKey(-3)] = { mood:"cosi", discomfort:"poco",  anti:0 };
+  diary[dayKey(-2)] = { mood:"male", discomfort:"molto", anti:1 };
+  diary[dayKey(-1)] = { mood:"cosi", discomfort:"poco",  anti:0 };
+  saveLog();
+}
+
+/* ---------- Modello indice + personalizzazione ---------- */
+function airAmp(){ return 1 + Math.min(Math.max((AIR.aqi-50)/120,0),0.4); }
+function baseP(level){ return (level/5) * 0.55; }
+function probFor(level){ return Math.min(0.95, baseP(level)*airAmp()); }
+function computeBaseIndex(){
+  const sel = ALLERGENS.filter(a=>selected.has(a.id));
+  if(!sel.length) return null;
+  let prodNo = 1; sel.forEach(a=>{ prodNo *= (1 - probFor(a.level)); });
+  return Math.round((1 - prodNo) * 100);
+}
+function symptomScore(e){
+  const m={bene:0,cosi:0.5,male:1}[e.mood] ?? 0.5;
+  const d={nessuno:0,poco:0.5,molto:1}[e.discomfort] ?? 0;
+  return 0.35*m + 0.45*d + 0.20*(e.anti?1:0);
+}
+function sensitivity(){
+  const past=Object.keys(diary).filter(k=>k<TODAY).sort();
+  if(past.length<2) return 1;
+  let ema=null; const alpha=0.5;
+  past.forEach(k=>{ const s=symptomScore(diary[k]); ema = ema===null? s : alpha*s+(1-alpha)*ema; });
+  return Math.min(1.25, Math.max(0.85, 1 + 0.5*(ema-0.4)));
+}
+function personalize(v){ return Math.round(Math.min(100, Math.max(0, v*sensitivity()))); }
+function computeIndex(){ const b=computeBaseIndex(); return b===null? null : personalize(b); }
+function pollenFactor(){ const lv=ALLERGENS.filter(a=>selected.has(a.id)).map(a=>a.level); return lv.length?Math.max(...lv)/5:0; }
+function bestHour(){ const f=pollenFactor(); let best=-1,bv=Infinity; for(let h=6;h<=22;h++){ const c=0.6*(POLLEN_HOUR[h]*f)+0.4*POLLUTION_HOUR[h]; if(c<bv){bv=c;best=h;} } return best; }
+
+/* ---------- Helper ---------- */
+function risk(s){
+  if(s<25) return {label:"Basso",from:"#1FA971",to:"#0E7C52"};
+  if(s<50) return {label:"Moderato",from:"#D9A317",to:"#A87C08"};
+  if(s<75) return {label:"Alto",from:"#E0742F",to:"#B85316"};
+  return {label:"Molto alto",from:"#D63E3A",to:"#A12521"};
+}
+function levelInfo(l){
+  if(l>=5) return {c:"#D63E3A",w:"Molto alto"};
+  if(l>=4) return {c:"#E0742F",w:"Alto"};
+  if(l>=3) return {c:"#D9A317",w:"Medio"};
+  return {c:"#1FA971",w:"Basso"};
+}
+function animateCount(el, from, to){
+  const dur=450, t0=performance.now();
+  function step(t){ const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3); if(!document.body.contains(el)) return; el.textContent=Math.round(from+(to-from)*e); if(k<1) requestAnimationFrame(step); }
+  requestAnimationFrame(step);
+}
+
+/* ---------- Render ---------- */
+function renderHero(){
+  const idx=computeIndex(), el=document.getElementById("hero");
+  if(idx===null){
+    el.style.background="radial-gradient(130% 90% at 85% 0%, rgba(255,255,255,.18), rgba(255,255,255,0) 55%), linear-gradient(135deg,#5C6B63,#3C4842)";
+    el.innerHTML='<div style="padding:8px 0;"><div class="display" style="font-size:20px;font-weight:700;margin-bottom:6px;">Scegli le tue allergie</div><div style="font-size:14px;opacity:.9;">Spunta gli allergeni per vedere quanto e\' probabile avere fastidi oggi.</div></div>';
+    prevIndex=0; return;
+  }
+  const r=risk(idx), bh=bestHour(), adjPct=Math.round((sensitivity()-1)*100);
+  el.style.background='radial-gradient(130% 90% at 85% 0%, rgba(255,255,255,.20), rgba(255,255,255,0) 55%), linear-gradient(135deg,'+r.from+','+r.to+')';
+  const msg = idx>=50 ? "Oggi e\' piu\' probabile avere fastidi per le allergie che hai scelto."
+            : idx>=25 ? "Probabilita\' media: una buona giornata con qualche accortezza."
+                      : "Probabilita\' bassa: dovresti stare tranquillo.";
+  const pers = Math.abs(adjPct)>=2 ? '<div style="font-size:12px;opacity:.85;margin-top:6px;">Adattato ai tuoi ultimi giorni di diario ('+(adjPct>0?'+':'')+adjPct+'%)</div>' : '';
+  el.innerHTML =
+    '<div style="font-size:13px;opacity:.85;margin-bottom:4px;">Indice di esposizione · oggi</div>'+
+    '<div class="row" style="align-items:flex-end;gap:10px;"><span id="hero-num" class="display num" style="font-size:64px;font-weight:800;line-height:1;">'+prevIndex+'</span><span class="display" style="font-size:22px;font-weight:700;padding-bottom:8px;">'+r.label+'</span></div>'+
+    '<div style="font-size:14px;opacity:.95;margin-top:8px;">'+msg+'</div>'+pers+
+    '<div style="height:6px;border-radius:999px;background:rgba(255,255,255,.3);margin-top:16px;overflow:hidden;"><div style="width:'+idx+'%;height:100%;background:#fff;border-radius:999px;transition:width .5s ease;"></div></div>';
+  animateCount(document.getElementById("hero-num"), prevIndex, idx); prevIndex=idx;
+}
+
+function renderAllergies(){
+  const box=document.getElementById("allergies");
+  box.innerHTML='<div class="sec-title">'+ICON.flower+'<span class="t display">Le mie allergie</span></div>'+
+    '<div class="row" style="flex-wrap:wrap;gap:8px;margin-top:10px;">'+
+    ALLERGENS.map(a=>{ const on=selected.has(a.id);
+      return '<button class="chip row all-chip" data-id="'+a.id+'" style="gap:7px;padding:8px 13px;border-radius:999px;font-size:13px;font-weight:500;border:1.5px solid '+(on?"#0B6E68":"#D5DEDA")+';background:'+(on?"#0B6E68":"#fff")+';color:'+(on?"#fff":"#3C4842")+';">'+
+        '<span style="width:8px;height:8px;border-radius:999px;background:'+(on?"#fff":levelInfo(a.level).c)+';"></span>'+a.label+(on?ICON.check:"")+'</button>';
+    }).join("")+'</div>';
+  box.querySelectorAll(".all-chip").forEach(b=>{ b.onclick=()=>{ const id=b.dataset.id; selected.has(id)?selected.delete(id):selected.add(id); saveState(); onAllergyChange(); }; });
+}
+
+/* Ticker consigli */
+let tipCount=0, tipIndex=0, tipTimer=null;
+function buildTips(){
+  if(computeBaseIndex()===null) return [];
+  return [
+    [ICON.wind,"Installa un purificatore d'aria con filtro HEPA negli ambienti domestici"],
+    [ICON.ac,"Applica filtri antipolline sui condizionatori"],
+    [ICON.bed,"Lava frequentemente le lenzuola"],
+    [ICON.vacuum,"Passa l'aspirapolvere con regolarità per rimuovere i pollini depositati su tappeti e tende"],
+    [ICON.mask,"Indossa una mascherina FFP2 per filtrare i pollini"]
+  ];
+}
+function renderTips(){
+  const tips=buildTips(), track=document.getElementById("ticker-track");
+  if(!tips.length){ track.innerHTML=""; tipCount=0; clearInterval(tipTimer); return; }
+  track.innerHTML=tips.map(p=>'<div class="ticker-slide"><div class="row" style="gap:12px;background:#fff;border-radius:14px;padding:13px 15px;box-shadow:0 1px 2px rgba(0,0,0,.05);min-height:62px;"><span style="width:34px;height:34px;border-radius:10px;background:#E7F1EF;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+p[0]+'</span><span style="font-size:13.5px;color:#2B362F;line-height:1.35;">'+p[1]+'</span></div></div>').join("");
+  tipCount=tips.length; tipIndex=Math.min(tipIndex,tipCount-1);
+  track.style.transform='translateX(-'+(tipIndex*100)+'%)'; startTicker();
+}
+function startTicker(){ clearInterval(tipTimer); if(tipCount<=1) return; tipTimer=setInterval(()=>{ tipIndex=(tipIndex+1)%tipCount; const t=document.getElementById("ticker-track"); if(t) t.style.transform='translateX(-'+(tipIndex*100)+'%)'; }, 5500); }
+
+function renderTabs(){
+  const p=document.getElementById("tab-pollen"), a=document.getElementById("tab-air");
+  const st=on=>"gap:6px;padding:6px 12px;border-radius:999px;border:none;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;background:"+(on?"#0B6E68":"transparent")+";color:"+(on?"#fff":"#64726B")+";";
+  p.style.cssText=st(layer==="pollen"); p.innerHTML=ICON.flower.replace(/#0B6E68/g,layer==="pollen"?"#fff":"#64726B").replace('width="16" height="16"','width="14" height="14"')+"Pollini";
+  a.style.cssText=st(layer==="air");    a.innerHTML='<span style="color:'+(layer==="air"?"#fff":"#64726B")+';display:flex;">'+ICON.wind+'</span>Aria';
+  p.onclick=()=>{ layer="pollen"; renderTabs(); renderMap(); };
+  a.onclick=()=>{ layer="air"; renderTabs(); renderMap(); };
+}
+function toggleMap(){ mapOpen=!mapOpen; document.getElementById("map-body").style.display=mapOpen?"block":"none"; document.getElementById("map-toggle").classList.toggle("open",mapOpen); if(mapOpen) renderMap(); }
+function toggleDiary(){ diaryOpen=!diaryOpen; document.getElementById("diary-body").style.display=diaryOpen?"block":"none"; document.getElementById("diary-toggle").classList.toggle("open",diaryOpen); if(diaryOpen) renderCalendar(); }
+
+function selectCity(name){ selectedCity=name; renderMap(); }
+function renderMap(){
+  const lines = ZONES.map((z,i)=>ZONES.slice(i+1).filter(o=>Math.hypot(z.x-o.x,z.y-o.y)<26)
+    .map(o=>'<line x1="'+z.x+'" y1="'+z.y+'" x2="'+o.x+'" y2="'+o.y+'" stroke="#E2EAE7" stroke-width="0.6"/>').join("")).join("");
+  const nodes = ZONES.map(z=>{
+    const l = layer==="pollen"?z.pollen:z.air, c=levelInfo(l).c, sel=z.name===selectedCity;
+    return '<circle class="node" cx="'+z.x+'" cy="'+z.y+'" r="'+(3+l*1.6)+'" fill="'+c+'" opacity="0.18"/>'+
+      (sel?'<circle cx="'+z.x+'" cy="'+z.y+'" r="'+(3+l*1.6+1.4)+'" fill="none" stroke="'+c+'" stroke-width="0.9"/>':'')+
+      '<circle class="node" cx="'+z.x+'" cy="'+z.y+'" r="3" fill="'+c+'"/>'+
+      '<text x="'+z.x+'" y="'+(z.y-5-l*1.4)+'" text-anchor="middle" style="font-size:3.4px;font-weight:'+(sel?700:600)+';fill:#3C4842;">'+z.name+'</text>'+
+      '<circle class="hit" cx="'+z.x+'" cy="'+z.y+'" r="7" fill="transparent" onclick="selectCity(\''+z.name+'\')"/>';
+  }).join("");
+  document.getElementById("map").innerHTML =
+    '<svg viewBox="0 0 100 100" style="width:100%;height:240px;display:block;"><rect x="6" y="6" width="88" height="88" rx="14" fill="#F1F5F4"/><path d="M24 18 Q 46 42 50 58 T 80 88" stroke="#CFE0DB" stroke-width="3" fill="none" stroke-linecap="round"/>'+lines+nodes+'</svg>';
+  document.getElementById("air-note").innerHTML = layer==="air"
+    ? '<div class="row" style="gap:8px;margin-top:10px;font-size:12px;color:#64726B;"><span style="flex-shrink:0;display:flex;">'+ICON.info.replace('width="16" height="16"','width="14" height="14"')+'</span>Qualita\' dell\'aria '+AIR.category+' (AQI '+AIR.aqi+'): oggi amplifica l\'effetto dei pollini.</div>'
+    : "";
+  const z=ZONES.find(x=>x.name===selectedCity);
+  if(z){
+    const pi=levelInfo(z.pollen), ai=levelInfo(z.air);
+    const badge=(c,w)=>'<span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#3C4842;"><span style="width:9px;height:9px;border-radius:999px;background:'+c+';"></span>'+w+'</span>';
+    document.getElementById("city-detail").innerHTML =
+      '<div style="margin-top:12px;border-top:1px solid #EDF1EF;padding-top:12px;"><div class="display" style="font-weight:700;font-size:14px;margin-bottom:8px;">'+z.name+'</div>'+
+      '<div class="row between" style="font-size:13px;color:#64726B;"><span>Pollini</span>'+badge(pi.c,pi.w)+'</div>'+
+      '<div class="row between" style="font-size:13px;color:#64726B;margin-top:6px;"><span>Qualita\' dell\'aria</span>'+badge(ai.c,ai.w)+'</div></div>';
+  }
+}
+
+function renderHourly(){
+  const f=pollenFactor(), bh=bestHour();
+  const X=h=>6+(h-6)/16*88, Y=v=>52-(Math.min(v,100)/100)*44;
+  const poll=[], poll0=[]; for(let h=6;h<=22;h++){ poll.push(X(h)+","+Y(POLLEN_HOUR[h]*f)); poll0.push(X(h)+","+Y(POLLUTION_HOUR[h])); }
+  const labels=[6,10,14,18,22].map(h=>'<text x="'+X(h)+'" y="58" text-anchor="middle" style="font-size:3px;fill:#94A39C;">'+h+'</text>').join("");
+  const maxP=Math.max.apply(null,POLLEN_HOUR), thr=0.45*maxP;
+  let mCut=7; for(let h=6;h<=11;h++){ if(POLLEN_HOUR[h]>=thr){ mCut=h; break; } }
+  let eLow=21; for(let h=17;h<=23;h++){ if(POLLEN_HOUR[h]<thr){ eLow=h; break; } }
+  const pPeak=POLLUTION_HOUR.indexOf(Math.max.apply(null,POLLUTION_HOUR));
+  const svg='<svg viewBox="0 0 100 62" style="width:100%;height:170px;display:block;"><line x1="'+X(bh)+'" y1="6" x2="'+X(bh)+'" y2="52" stroke="#1FA971" stroke-width="0.7" stroke-dasharray="2 1.5"/><polyline points="'+poll0.join(" ")+'" fill="none" stroke="#D9A317" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="'+poll.join(" ")+'" fill="none" stroke="#0B6E68" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="'+X(bh)+'" cy="'+Y(POLLEN_HOUR[bh]*f)+'" r="1.6" fill="#1FA971"/><text x="'+X(bh)+'" y="4.5" text-anchor="middle" style="font-size:3px;font-weight:700;fill:#0E7C52;">aria migliore</text>'+labels+'</svg>';
+  const legend='<div class="row" style="gap:16px;justify-content:center;margin-top:4px;"><span class="row" style="gap:5px;font-size:11px;color:#64726B;"><span style="width:14px;height:3px;border-radius:2px;background:#0B6E68;"></span>Pollini</span><span class="row" style="gap:5px;font-size:11px;color:#64726B;"><span style="width:14px;height:3px;border-radius:2px;background:#D9A317;"></span>Inquinamento</span></div><div style="font-size:12px;color:#64726B;margin-top:8px;line-height:1.4;">I pollini sono più bassi prima delle <b>'+mCut+'</b> e dopo le <b>'+eLow+'</b>: è il momento migliore per uscire o aprire le finestre. Nel pomeriggio, verso le <b>'+pPeak+'</b>, l\'inquinamento è più alto, meglio tenerle chiuse.</div>';
+  document.getElementById("hourly").innerHTML=svg+legend;
+}
+
+function renderForecast(){
+  const idx=computeIndex(), box=document.getElementById("forecast"); box.innerHTML="";
+  FORECAST.forEach((d,i)=>{
+    const score=i===0?(idx??0):personalize(d.base), r=risk(score);
+    const ic = d.icon==="sun"?sunIcon():d.icon==="rain"?ICON.rain:ICON.cloud;
+    const val = (idx===null&&i===0)?"–":score;
+    const cell=document.createElement("div");
+    cell.style.cssText="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:12px 6px;box-shadow:0 1px 2px rgba(0,0,0,.05);border:1.5px solid "+(i===0?"#0B6E68":"transparent")+";";
+    cell.innerHTML='<span style="font-size:12px;color:#64726B;font-weight:600;">'+d.day+'</span>'+ic+'<span class="num" style="width:26px;height:26px;border-radius:999px;background:'+r.from+';color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">'+val+'</span>';
+    box.appendChild(cell);
+  });
+}
+
+function renderBreakdown(){
+  const el=document.getElementById("breakdown"); if(!el) return;
+  const sel=ALLERGENS.filter(a=>selected.has(a.id));
+  if(!sel.length){ el.innerHTML='<div style="font-size:13px;color:#64726B;">Seleziona almeno un\'allergia per vedere il dettaglio.</div>'; return; }
+  const adjPct=Math.round((sensitivity()-1)*100);
+  el.innerHTML=sel.map(a=>{ const p=Math.round(probFor(a.level)*100), ci=levelInfo(a.level);
+    return '<div style="margin-bottom:12px;"><div class="row between" style="font-size:13px;margin-bottom:5px;"><span style="font-weight:600;color:#2B362F;">'+a.label+'</span><span class="num" style="color:#64726B;">'+p+'%</span></div><div style="height:7px;border-radius:999px;background:#EEF1F0;overflow:hidden;"><div style="width:'+p+'%;height:100%;background:'+ci.c+';border-radius:999px;"></div></div></div>';
+  }).join("")+'<div style="font-size:11px;color:#94A39C;margin-top:2px;line-height:1.4;">Probabilita\' base di reazione per allergene. Adattamento personale dal diario: '+(adjPct>0?'+':'')+adjPct+'%.</div>';
+}
+function renderAirDetail(){
+  const el=document.getElementById("airdetail"); if(!el) return;
+  const ampPct=Math.round((airAmp()-1)*100), ci=levelInfo(AIR.aqi>=80?4:AIR.aqi>=60?3:2);
+  const stat=(lab,val)=>'<div style="text-align:center;flex:1;"><div class="num display" style="font-size:22px;font-weight:700;color:#2B362F;">'+val+'</div><div style="font-size:11px;color:#64726B;margin-top:2px;">'+lab+'</div></div>';
+  el.innerHTML='<div class="row" style="gap:8px;margin-bottom:12px;"><span style="display:flex;color:'+ci.c+';">'+ICON.wind.replace('width="14" height="14"','width="18" height="18"')+'</span><span style="font-weight:600;font-size:14px;color:#2B362F;">'+AIR.category+'</span></div><div class="row" style="gap:8px;">'+stat("AQI",AIR.aqi)+stat("PM2.5",AIR.pm25)+stat("Ozono",AIR.o3)+'</div><div style="font-size:12px;color:#64726B;margin-top:12px;line-height:1.4;">Con questa qualita\' dell\'aria l\'effetto dei pollini e\' amplificato di circa <b>+'+ampPct+'%</b> nell\'indice.</div>';
+}
+
+/* ---------- Calendario diario ---------- */
+function renderCalendar(){
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+  const MONTHS=['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  const firstW=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate();
+  let cells='';
+  ['L','M','M','G','V','S','D'].forEach(w=>{ cells+='<div style="text-align:center;font-size:10px;color:#94A39C;font-weight:600;">'+w+'</div>'; });
+  for(let i=0;i<firstW;i++) cells+='<div></div>';
+  for(let d=1; d<=dim; d++){
+    const key=fmt(new Date(y,m,d)), e=diary[key], isToday=key===TODAY;
+    const bg = e? moodColor(e.mood) : '#EEF1F0';
+    const col = e? '#fff' : '#94A39C';
+    const badge = (e&&e.anti)? '<span style="position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:999px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.28);">'+PILL_MINI+'</span>' : '';
+    const ring = isToday? 'box-shadow:0 0 0 2px #122019;' : '';
+    cells+='<div style="position:relative;min-height:36px;border-radius:8px;background:'+bg+';color:'+col+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;'+ring+'">'+d+badge+'</div>';
+  }
+  const legend='<div class="row" style="flex-wrap:wrap;gap:12px;margin-top:12px;">'+
+    [['#1FA971','Bene'],['#D9A317','Così così'],['#D63E3A','Male']].map(x=>'<span class="row" style="gap:5px;font-size:11px;color:#64726B;"><span style="width:9px;height:9px;border-radius:999px;background:'+x[0]+';"></span>'+x[1]+'</span>').join("")+
+    '<span class="row" style="gap:5px;font-size:11px;color:#64726B;">'+BADGE+'antistaminico</span></div>';
+  document.getElementById("diary-body").innerHTML=
+    '<div class="card" style="padding:16px;"><div class="display" style="font-weight:700;font-size:14px;margin-bottom:12px;">'+MONTHS[m]+' '+y+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">'+cells+'</div>'+legend+'</div>';
+}
+
+/* ---------- Diario a 3 domande, una alla volta ---------- */
+const DQ = [
+  {k:"mood", q:"Come ti senti?", opts:[["bene","Bene"],["cosi","Così così"],["male","Male"]], colored:true},
+  {k:"discomfort", q:"Hai provato fastidio?", opts:[["nessuno","Nessuno"],["poco","Un po'"],["molto","Molto"]]},
+  {k:"anti", q:"Hai preso un antistaminico?", opts:[["no","No"],["si","Sì"]]},
+];
+function optStyle(g,v,on){
+  if(g.colored){ const c=moodColor(v); return 'flex:1;padding:10px 0;border-radius:12px;border:1.5px solid '+(on?c:'rgba(255,255,255,.25)')+';background:'+(on?c:'transparent')+';color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;'; }
+  return 'flex:1;padding:10px 0;border-radius:12px;border:1.5px solid '+(on?'#1FA971':'rgba(255,255,255,.25)')+';background:'+(on?'#1FA971':'transparent')+';color:#fff;font-size:13.5px;font-weight:600;cursor:pointer;';
+}
+function optInner(g,v,label){ return g.colored? '<span style="width:9px;height:9px;border-radius:999px;background:'+moodColor(v)+';"></span>'+label : label; }
+function dqGoto(s){ dqStep=Math.max(0,Math.min(DQ.length-1,s)); const t=document.getElementById("dq-track"); if(t) t.style.transform='translateX(-'+(dqStep*100)+'%)'; const st=document.getElementById("dq-step"); if(st) st.textContent='Passo '+(dqStep+1)+' di '+DQ.length; }
+function renderCheckin(){
+  const el=document.getElementById("checkin");
+  if(diary[TODAY]){
+    el.innerHTML='<div class="row between" style="gap:10px;"><div class="row" style="gap:10px;"><span style="width:36px;height:36px;border-radius:999px;background:#1FA971;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+ICON.check.replace('width="14" height="14"','width="20" height="20"')+'</span><div><div class="display" style="font-weight:700;font-size:15px;">Diario di oggi registrato</div><div style="font-size:13px;opacity:.7;">Serie di '+streak+' giorni · antistaminico '+antiLast7()+'/7 giorni</div></div></div><button id="diary-reset" class="row" style="gap:5px;background:none;border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0;align-self:flex-start;">'+ICON.refresh+'Rifai</button></div>';
+    const rb=document.getElementById("diary-reset"); if(rb) rb.onclick=resetDiary;
+    return;
+  }
+  let slides='';
+  DQ.forEach((g,gi)=>{
+    slides+='<div style="flex:0 0 100%;min-width:0;"><div style="font-size:14px;margin-bottom:12px;">'+g.q+'</div><div class="row" style="gap:8px;">'+
+      g.opts.map(o=>'<button class="dq-opt" data-gi="'+gi+'" data-k="'+g.k+'" data-v="'+o[0]+'" style="'+optStyle(g,o[0],pending[g.k]===o[0])+'">'+optInner(g,o[0],o[1])+'</button>').join("")+
+      '</div>'+(gi>0?'<button class="dq-back" style="background:none;border:none;color:#fff;opacity:.7;font-size:13px;cursor:pointer;margin-top:12px;padding:0;">‹ Indietro</button>':'')+'</div>';
+  });
+  el.innerHTML='<div class="row between" style="margin-bottom:12px;"><span class="display" style="font-weight:700;font-size:15px;">Diario di oggi</span><span id="dq-step" style="font-size:12px;opacity:.7;"></span></div>'+
+    '<div style="overflow:hidden;"><div id="dq-track" style="display:flex;transition:transform .45s cubic-bezier(.22,.61,.36,1);">'+slides+'</div></div>';
+  dqGoto(dqStep);
+  el.querySelectorAll(".dq-opt").forEach(b=>{ b.onclick=()=>{
+    const gi=+b.dataset.gi, k=b.dataset.k; pending[k]=b.dataset.v;
+    el.querySelectorAll('.dq-opt[data-gi="'+gi+'"]').forEach(x=>{ x.style.cssText=optStyle(DQ[gi],x.dataset.v, x.dataset.v===pending[k]); });
+    if(gi < DQ.length-1){ dqGoto(gi+1); } else { setTimeout(commitDiary, 300); }
+  }; });
+  el.querySelectorAll(".dq-back").forEach(b=>{ b.onclick=()=>dqGoto(dqStep-1); });
+}
+function commitDiary(){
+  diary[TODAY]={ mood:pending.mood, discomfort:pending.discomfort, anti: pending.anti==="si"?1:0 };
+  saveLog();
+  if(checkInDate!==TODAY){ streak++; checkInDate=TODAY; document.getElementById("streak").textContent=streak; saveState(); }
+  renderCheckin(); renderCalendar(); showToast();
+}
+function resetDiary(){
+  delete diary[TODAY]; saveLog();
+  pending={ mood:null, discomfort:null, anti:null }; dqStep=0;
+  renderCheckin(); renderCalendar();
+}
+function showToast(){
+  let t=document.getElementById("toast");
+  if(!t){ t=document.createElement("div"); t.id="toast"; document.body.appendChild(t); }
+  t.innerHTML='<span class="tk-check" style="color:#fff;">'+ICON.check.replace('width="14" height="14"','width="20" height="20"')+'</span><div><div class="tk-t">Salvato nel diario</div><div class="tk-s">Stai tenendo sotto controllo le tue allergie. Bel lavoro.</div></div>';
+  t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>{ t.classList.remove("show"); }, 3400);
+}
+function antiLast7(){ let n=0; for(let k=0;k<7;k++){ const e=diary[dayKey(-k)]; if(e&&e.anti) n++; } return n; }
+
+function onAllergyChange(){ renderHero(); renderAllergies(); renderTips(); renderHourly(); renderForecast(); renderBreakdown(); }
+
+/* ---------- Avvio ---------- */
+document.getElementById("i-pin").innerHTML=ICON.pin;
+document.getElementById("i-flame").innerHTML=ICON.flame;
+document.getElementById("i-info").innerHTML=ICON.info;
+document.getElementById("i-clock2").innerHTML=ICON.clock;
+document.getElementById("i-sun").innerHTML=ICON.sun;
+document.getElementById("i-map").innerHTML=ICON.map;
+document.getElementById("i-chev").innerHTML=ICON.chev;
+document.getElementById("i-cal").innerHTML=ICON.cal;
+document.getElementById("i-chev2").innerHTML=ICON.chev;
+document.getElementById("i-flower2").innerHTML=ICON.flower;
+document.getElementById("i-wind2").innerHTML='<span style="color:#0B6E68;display:flex;">'+ICON.wind+'</span>';
+document.getElementById("streak").textContent=streak;
+document.querySelectorAll(".lg").forEach(s=>{ s.style.cssText="display:flex;align-items:center;gap:5px;font-size:11px;color:#64726B;"; s.innerHTML='<span style="width:9px;height:9px;border-radius:999px;background:'+s.dataset.c+';"></span>'+s.textContent; });
+
+const tv=document.getElementById("ticker");
+tv.addEventListener("mouseenter",()=>clearInterval(tipTimer));
+tv.addEventListener("mouseleave",startTicker);
+
+mapOpen = window.innerWidth>=820;
+document.getElementById("map-body").style.display = mapOpen?"block":"none";
+document.getElementById("map-toggle").classList.toggle("open", mapOpen);
+
+renderHero(); renderAllergies(); renderTips(); renderTabs(); renderMap(); renderHourly(); renderForecast(); renderCheckin(); renderBreakdown(); renderAirDetail();
+
+function initReveal(){
+  const blocks=[].slice.call(document.querySelectorAll('#col-a > *, #col-b > *'));
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){ blocks.forEach(b=>b.classList.add('in')); return; }
+  blocks.forEach(b=>b.classList.add('reveal'));
+  if(!('IntersectionObserver' in window)){ blocks.forEach(b=>b.classList.add('in')); return; }
+  const io=new IntersectionObserver(es=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+  blocks.forEach(b=>io.observe(b));
+}
+if(unlocked) initReveal();
+</script>
+</body>
+</html>
